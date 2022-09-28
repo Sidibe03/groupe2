@@ -1,0 +1,236 @@
+
+
+#
+#
+
+
+
+
+
+
+#page produit magasinier
+
+from subprocess import call
+from tkinter import *
+import mysql.connector as mysql
+from tkinter import Entry
+import customtkinter as customtkinter
+from tkinter import ttk
+# import pymysql as pymysql
+from tkinter import messagebox
+
+
+
+def acceuil():
+    fenetre5.destroy()
+    call(["python","accmag.py"])
+
+
+
+
+
+fenetre5=Tk()
+fenetre5.title("Les produits Mag ")
+fenetre5.geometry("1000x620")
+fenetre5.resizable(False, False)
+fenetre5.configure(bg="white")
+
+#affichage resultat
+aff= ttk.Treeview(fenetre5, columns=(1,2,3,4,5,6),height=10,show="headings")
+aff.place(x='',y='290',width=1000,height=280)
+
+def afficher():
+
+    con = mysql.connect(host="localhost", user="root", password="", database="bigstock")
+    cursor=con.cursor()
+    cursor.execute("select * from produit ")
+    aff.delete(*aff.get_children())
+    records = cursor.fetchall()
+    print(records)
+
+    for i, (id,nom,quantite,date_arrive,fournisseur,telephone) in enumerate (records,start=1):
+            aff.insert ("", "end", values=(id,nom,quantite,date_arrive,fournisseur,telephone))
+
+    con.close()
+
+afficher()
+
+
+#les fonctions
+
+
+def recuperer():
+    id = idchamp.get()
+
+    con = mysql.connect(host="localhost", user="root", password="", database="bigstock")
+    cursor = con.cursor()
+    cursor.execute("select * from produit where id='" + idchamp.get() + "'")
+    rows = cursor.fetchall()
+    cursor.execute("commit")
+
+    idchamp.delete(0, "end")
+    for row in rows:
+        idchamp.insert(0, row[0])
+        nomchamp.insert(0, row[1])
+        datechamp.insert(0, row[2])
+        quantitechamp.insert(0, row[3])
+        fournisseurchamp.insert(0, row[4])
+        telephonechamp.insert(0, row[5])
+
+
+        afficher()
+        con.close()
+
+def ajouter():
+
+    id = idchamp.get()
+    nom = nomchamp.get()
+    date_arrivee = datechamp.get()
+    quantite = quantitechamp.get()
+    fournisseur = fournisseurchamp.get()
+    telephone = telephonechamp.get()
+
+
+    if (id == " " or nom == " " or date_arrivee == " " or quantite == " " or fournisseur == " " or telephone == " "):
+        messagebox.showinfo("Message d'erreur", "Tout les champs sont réquis")
+    else:
+
+        con = mysql.connect(host="localhost", user="root", password="", database="bigstock")
+        cursor = con.cursor()
+        cursor.execute("insert into produit values('" + id + "','" + nom + "','" + quantite + "','" + date_arrivee + "','" + fournisseur + "','" + telephone + "') ")
+        cursor.execute("commit")
+
+        idchamp.delete(0, "end")
+        nomchamp.delete(0, "end")
+        quantitechamp.delete(0,"end")
+        fournisseurchamp.delete(0,"end")
+        telephonechamp.delete(0,"end")
+        datechamp.delete(0,"end")
+    afficher()
+
+    con.close()
+
+
+def supprimer():
+    if (idchamp.get() == " " ):
+        messagebox.showinfo("Message d'erreur", "Inserer l'ID");
+    else:
+        con = mysql.connect(host="localhost", user="root", password="", database="bigstock")
+        cursor = con.cursor()
+        cursor.execute("delete from produit where id='" + idchamp.get() + "' ")
+        cursor.execute("commit")
+        afficher()
+        con.close()
+
+    idchamp.delete(0, "end")
+    nomchamp.delete(0, "end")
+    quantitechamp.delete(0, "end")
+    fournisseurchamp.delete(0, "end")
+    telephonechamp.delete(0, "end")
+    datechamp.delete(0,"end")
+    afficher()
+
+
+def modifier():
+    id = idchamp.get()
+    nom = nomchamp.get()
+    date_arrivee = datechamp.get()
+    quantite = quantitechamp.get()
+    fournisseur = fournisseurchamp.get()
+    telephone=telephonechamp.get()
+
+    con = mysql.connect(host="localhost", user="root", password="", database="bigstock")
+    cursor = con.cursor()
+    cursor.execute("update produit set id='" + id + "',nom='" + nom + "',prenom='" + quantite + "',tel='" + fournisseur + "',typro='" + date_arrivee + "',adresse='" + telephone + "',where id='" + id + " '")
+    cursor.execute("commit")
+
+    idchamp.delete(0, "end")
+    nomchamp.delete(0, "end")
+    quantitechamp.delete(0, "end")
+    fournisseurchamp.delete(0, "end")
+    telephonechamp.delete(0, "end")
+    datechamp.delete(0, "end")
+
+
+    afficher()
+    con.close()
+
+#corrps du code
+texte=Label (fenetre5,text="Les Produits",font=('Calistoga',25),bg="white")
+texte.place(x=400,y=20,)
+ret=Button (fenetre5,text="<<Retour",font=('Calistoga',8),bg="white")
+ret.place(x=5,y=30,)
+
+
+id = Label(fenetre5, text="ID",bg="#ffffff",fg="#000000").place(x=50, y=80)
+
+idchamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+idchamp.place(x=50,y=100,)
+
+nom = Label(fenetre5, text="Nom",bg="#ffffff",fg="#000000").place(x=50, y=130)
+
+nomchamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+nomchamp.place(x=50,y=150,)
+
+quantite = Label(fenetre5, text="Quantité",bg="#ffffff",fg="#000000").place(x=50, y=180)
+
+quantitechamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+quantitechamp.place(x=50,y=210,)
+
+date = Label(fenetre5, text="Date d'arrivée",bg="#ffffff",fg="#000000").place(x=340, y=80)
+
+datechamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+datechamp.place(x=340,y=100,)
+
+fournisseur = Label(fenetre5, text="Fournisseur",bg="#ffffff",fg="#000000").place(x=340, y=130)
+
+fournisseurchamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+fournisseurchamp.place(x=340,y=150,)
+
+telephone = Label(fenetre5, text="Téléphone",bg="#ffffff",fg="#000000").place(x=340, y=180)
+
+telephonechamp=Entry(fenetre5,bg="white",width=25,font=('Calistoga',12))
+telephonechamp.place(x=340,y=210,)
+
+
+#en tete
+aff.heading(1,text="ID")
+aff.heading(2,text="Nom")
+aff.heading(3,text="Quantité")
+aff.heading(4,text="Date d'arrivée")
+aff.heading(5,text="Fournisseur")
+aff.heading(6,text="Télephone Founisseur")
+#dimension des colonnes
+aff.column(1,width=10)
+aff.column(2,width=10)
+aff.column(3,width=10)
+aff.column(4,width=10)
+aff.column(5,width=10)
+aff.column(6,width=10)
+#les buton modification
+pad= customtkinter.CTkButton(master=fenetre5,text="Ajouter",text_font=('Calistoga',11),command=ajouter,
+                                      height=20,width=100,border_width=1,corner_radius=3,fg_color="#319BFE")
+pad.place(x=150,y=250)
+pad= customtkinter.CTkButton(master=fenetre5,text="Supprimer",text_font=('Calistoga',11),command=supprimer,
+                                      height=20,width=100,border_width=1,corner_radius=3,fg_color="#319BFE")
+pad.place(x=300,y=250)
+pad= customtkinter.CTkButton(master=fenetre5,text="Modifier",text_font=('Calistoga',11),command=modifier,
+                                      height=20,width=100,border_width=1,corner_radius=3,fg_color="#319BFE")
+pad.place(x=450,y=250)
+pad= customtkinter.CTkButton(master=fenetre5,text="Recupérer",text_font=('Calistoga',11),command=recuperer,
+                                      height=20,width=100,border_width=1,corner_radius=3,fg_color="#319BFE")
+pad.place(x=600,y=250)
+
+#suivante et precedente
+pad=Button(master=fenetre5,text="<<Précedente",font=('Calistoga',11),command=quit,fg="#000000",
+                                      width=11,bg="#ffffff")
+pad.place(x=700,y=580)
+
+pad=Button(master=fenetre5,text="Suivante>>",font=('Calistoga',11),command=quit,fg="#000000",
+                                     width=10,bg="#ffffff")
+pad.place(x=850,y=580)
+
+
+
+fenetre5.mainloop()
+
